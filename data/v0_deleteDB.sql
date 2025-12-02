@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS LesEpreuves;
+DROP TABLE IF EXISTS LesEquipes;
+DROP TABLE IF EXISTS LesSportifs;
+DROP TABLE IF EXISTS LesDisciplines;
+DROP TABLE IF EXISTS AppartenanceEquipe;
+DROP TABLE IF EXISTS ParticipationIndiv;
+DROP TABLE IF EXISTS ParticipationEquipe;
+DROP TABLE IF EXISTS ClassementEquipe;
+DROP TABLE IF EXISTS ClassementIndiv;
+DROP TABLE IF EXISTS MedailleParRang;
