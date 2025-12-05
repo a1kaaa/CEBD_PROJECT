@@ -35,11 +35,3 @@ def membres_equipe(data, numero):
     else:
         for equipe in result:
             print(str(equipe[0]) + " - " + equipe[1]+ " - " + equipe[2] + " - " + equipe[3]+ " - " + equipe[4] + " - " + equipe[5])
-
-
-def inscription_indiv(data, numEp, numSp):
-    print(f"\nInscription à l'épreuve {numEp} :")
-    try:
-        cursor = data.cursor()
-    except Exception as e:
-        return

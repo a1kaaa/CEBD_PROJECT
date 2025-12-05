@@ -1,5 +1,4 @@
--- 1) View: LesAgesSportifs
--- Colonnes: numSp, nomSp, prenomSp, pays, categorieSp, dateNaisSp, ageSp (in years, integer)
+-- LesAgesSportifs
 CREATE VIEW IF NOT EXISTS LesAgesSportifs AS
 SELECT
   numSp,
@@ -8,12 +7,12 @@ SELECT
   pays,
   categorieSp,
   dateNaisSp,
-  CAST((julianday('now') - julianday(dateNaisSp)) / 365.25 AS INTEGER) AS ageSp
+  strftime('%Y', 'now') - strftime('%Y', dateNaisSp) - (strftime('%m-%d', 'now') < strftime('%m-%d', dateNaisSp)) AS ageSp
 FROM LesSportifs;
 
 
--- 2) View: LesNbsEquipiers
--- Colonnes: numEq, nbEquipiersEq
+
+-- LesNbsEquipiers
 CREATE VIEW IF NOT EXISTS LesNbsEquipiers AS
 SELECT
   numEq,
@@ -22,8 +21,7 @@ FROM AppartenanceEquipe
 GROUP BY numEq;
 
 
--- 3) View: Moyenne des âges des équipes ayant gagné la médaille d'or
--- Colonnes: numEq, ageMoyenEq
+-- Moyenne des âges des équipes ayant gagné la médaille d'or
 CREATE VIEW IF NOT EXISTS LesAgesMoyens_EquipesGold AS
 SELECT
   e.numEq,
@@ -37,8 +35,7 @@ WHERE e.numEq IN (
 GROUP BY e.numEq;
 
 
--- 4) View: Classement des pays par nombre de médailles
--- Colonnes: pays, nbOr, nbArgent, nbBronze
+-- Classement des pays par nombre de médailles
 CREATE VIEW IF NOT EXISTS ClassementPaysMedaille AS
 SELECT
   pays,
@@ -46,7 +43,7 @@ SELECT
   SUM(CASE WHEN medaille = 'argent' THEN 1 ELSE 0 END) AS nbArgent,
   SUM(CASE WHEN medaille = 'bronze' THEN 1 ELSE 0 END) AS nbBronze
 FROM (
-  -- médailles individuelles
+  -- individuelle
   SELECT s.pays AS pays, m.medaille AS medaille
   FROM ClassementIndiv ci
   JOIN MedailleParRang m ON ci.rang = m.rang
@@ -54,11 +51,19 @@ FROM (
 
   UNION ALL
 
-  -- médailles par équipe
+  -- équipe
   SELECT e.pays AS pays, m.medaille AS medaille
   FROM ClassementEquipe ce
   JOIN MedailleParRang m ON ce.rang = m.rang
   JOIN LesEquipes e ON ce.numEq = e.numEq
+
+  UNION ALL
+  SELECT s.pays AS pays, m.medaille AS medaille
+  FROM ClassementCouple CC
+  JOIN MedailleParRang m ON CC.rang = m.rang
+  JOIN LesEquipes s ON CC.numEq = s.numEq
 )
 GROUP BY pays
 ORDER BY nbOr DESC, nbArgent DESC, nbBronze DESC;
+
+

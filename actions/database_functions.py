@@ -95,3 +95,46 @@ def inscrire_sportif_epreuve(data, numSp, numEp):
         data.commit()
         print(f"Sportif {numSp} inscrit à l'épreuve {numEp} avec succès.")
 
+
+def inscrire_equipe_epreuve(data, numEq, numEp):
+    """
+    Inscrit une équipe (numEq) à une épreuve par équipe (numEp).
+    """
+    print(f"\nInscription de l'équipe {numEq} à l'épreuve {numEp}")
+
+    try:
+        cursor = data.cursor()
+        cursor.execute(
+            """
+            INSERT INTO ParticipationEquipe (numEp, numEq)
+            VALUES (?, ?)
+            """,
+            (numEp, numEq)
+        )
+    except Exception as e:
+        print("Erreur lors de l'inscription :", repr(e))
+    else:
+        data.commit()
+        print(f"Équipe {numEq} inscrite à l'épreuve {numEp} avec succès.")
+
+
+def inscrire_couple_epreuve(data, numEq, numEp):
+    """
+    Inscrit un couple (numEq) à une épreuve en couple (numEp).
+    """
+    print(f"\nInscription du couple {numEq} à l'épreuve {numEp}")
+
+    try:
+        cursor = data.cursor()
+        cursor.execute(
+            """
+            INSERT INTO ParticipationCouple (numEp, numEq)
+            VALUES (?, ?)
+            """,
+            (numEp, numEq)
+        )
+    except Exception as e:
+        print("Erreur lors de l'inscription :", repr(e))
+    else:
+        data.commit()
+        print(f"Couple {numEq} inscrit à l'épreuve {numEp} avec succès.")

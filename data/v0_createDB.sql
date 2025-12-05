@@ -7,9 +7,9 @@ CREATE TABLE IF NOT EXISTS LesEpreuves (
   nomEp VARCHAR(200) NOT NULL,
   formeEp VARCHAR(20) NOT NULL CHECK (formeEp IN ('individuelle','par equipe','par couple')),
   categorieEp VARCHAR(10) NOT NULL CHECK (categorieEp IN ('feminin','masculin','mixte')),
-  nbSportifsEp INT NULL CHECK(nbSportifsEp >= 3), -- Faut bien attribuer les trois médailles en différenciant du NULL
+  nbSportifsEp INT NULL CHECK(nbSportifsEp > 0),
   dateEp DATE,
-  nomDi VARCHAR(100) NOT NULL REFERENCES LesDisciplines(nomDi)
+  nomDi VARCHAR(100) NOT NULL REFERENCES LesDisciplines(nomDi) -- References c'est genre les foreign keys
 );
 
 CREATE TABLE IF NOT EXISTS LesSportifs (
@@ -24,32 +24,39 @@ CREATE TABLE IF NOT EXISTS LesSportifs (
 
 CREATE TABLE IF NOT EXISTS LesEquipes (
   numEq INT PRIMARY KEY CHECK (numEq BETWEEN 1 AND 100),
-  nomDi VARCHAR(100) REFERENCES LesDisciplines(nomDi),
   pays VARCHAR(100) NOT NULL
 );
+
 
 CREATE TABLE IF NOT EXISTS AppartenanceEquipe (
   numSp INT NOT NULL REFERENCES LesSportifs(numSp),
   numEq INT NOT NULL REFERENCES LesEquipes(numEq),
   PRIMARY KEY (numSp, numEq)
-  -- contrainte métier (équipe >= 2 membres) : implémenter par trigger / procédure
-  -- contrainte métier (membres et équipe même pays) : implémenter par trigger
+  -- zéquipe >= 2 membres /// trigger 
+  -- membres et équipe même pays trigger
 );
 
 CREATE TABLE IF NOT EXISTS ParticipationIndiv (
   numEp INT NOT NULL REFERENCES LesEpreuves(numEp),
   numSp INT NOT NULL REFERENCES LesSportifs(numSp),
   PRIMARY KEY (numEp, numSp)
-  -- contrainte métier : vérifier LesEpreuves.formeEp = 'individuelle' (implémenter par trigger)
-  -- contrainte métier : vérifier LesSportifs.categorieSp compatible avec LesEpreuves.categorieEp (trigger)
+  -- LesEpreuves.formeEp = 'individuelle' ttrigger)
+  -- LesSportifs.categorieSp marche avec LesEpreuves.categorieEp (trigger)
 );
 
 CREATE TABLE IF NOT EXISTS ParticipationEquipe (
   numEp INT NOT NULL REFERENCES LesEpreuves(numEp),
   numEq INT NOT NULL REFERENCES LesEquipes(numEq),
   PRIMARY KEY (numEp, numEq)
-  -- contrainte métier : vérifier LesEpreuves.nomDi = LesEquipes.nomDi (implémenter par trigger)
-  -- contrainte métier : vérifier LesEpreuves.formeEp = 'par equipe' (trigger)
+  -- LesEpreuves.nomDi = LesEquipes.nomDi (trigger)
+  -- LesEpreuves.formeEp = 'par equipe' (trigger)
+);
+
+CREATE TABLE IF NOT EXISTS ParticipationCouple (
+  numEp INT NOT NULL REFERENCES LesEpreuves(numEp),
+  numEq INT NOT NULL REFERENCES LesEquipes(numEq),
+  PRIMARY KEY (numEp, numEq)
+  -- LesEpreuves.formeEp = 'par couple'
 );
 
 CREATE TABLE IF NOT EXISTS MedailleParRang (
@@ -72,7 +79,16 @@ CREATE TABLE IF NOT EXISTS ClassementEquipe (
   numEq INT NOT NULL REFERENCES LesEquipes(numEq),
   PRIMARY KEY (numEp, rang),
   UNIQUE (numEp, numEq)
-  -- medaille déterminée par JOIN MedailleParRang ON rang
+  -- medaille par JOIN MedailleParRang ON rang
+);
+
+CREATE TABLE IF NOT EXISTS ClassementCouple (
+  numEp INT NOT NULL REFERENCES LesEpreuves(numEp),
+  rang INT NOT NULL,
+  numEq INT NOT NULL REFERENCES LesEquipes(numEq),
+  PRIMARY KEY (numEp, rang),
+  UNIQUE (numEp, numEq)
+  -- LesEpreuves.formeEp = 'par couple'
 );
 
 
